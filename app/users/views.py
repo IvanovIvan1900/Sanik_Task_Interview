@@ -1,10 +1,11 @@
-from app.users.schemes import LoginInput, LoginResponse
 from app.server.server import sanic_app
-from app.users.auth import get_jwt_token
+from app.users.auth import authorized, get_jwt_token, is_admin
+from app.users.schemes import LoginInput, LoginResponse
 from sanic.response import json, text
 from sanic_openapi import openapi
-from sanic_pydantic import webargs
 from sanic_openapi.openapi3.definitions import RequestBody, Response
+from sanic_pydantic import webargs
+
 
 @sanic_app.get("/users.login/", name='users.login')
 @openapi.description('Login to api and get token')
@@ -32,3 +33,14 @@ async def login_user(request, **kwargs)->json:
 
     return json(dict_result, status=status_ret)
 
+
+@sanic_app.get("/users.test.auth/", name='users.test.auth')
+@authorized
+async def test_auth(request, **kwargs)->json:
+    return json({'info':'user is auth'}, status=200)
+
+@sanic_app.get("/users.test.auth.admin/", name='users.test.auth.admin')
+@authorized
+@is_admin
+async def test_auth(request, **kwargs)->json:
+    return json({'info':'user is admin'}, status=200)

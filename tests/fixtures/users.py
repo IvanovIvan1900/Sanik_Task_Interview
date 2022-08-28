@@ -3,7 +3,7 @@ import pytest
 from app.users.models import User
 from app.server.server import sanic_app
 from .general import run_corootine_in_current_loop
-
+from app.users.auth import get_jwt_token
 
 if typing.TYPE_CHECKING:
     from sanic import Sanic
@@ -51,6 +51,10 @@ def dict_user_2_non_activate():
 
 def create_user_from_dict(test_app: "Sanic", dict_user_data:dict)->User:
     return run_corootine_in_current_loop(test_app.config["STORE"].user_accessor.insert_or_find(User(**dict_user_data)))
+
+def get_header_auth_wich_user(user_id:int)->dict:
+    token = get_jwt_token(user_id)
+    return {'Authorization':f'Basic {token}'}
 
 @pytest.fixture
 def db_user_admin(test_app: "Sanic", dict_user_admin:dict)->User:
