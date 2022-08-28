@@ -1,7 +1,9 @@
-from marshmallow import Schema, fields
+from pydantic import BaseModel, Field
 
+class LoginInput(BaseModel):
+    login:str
+    password:str = Field("", min_length=0)
 
-class AdminSchema(Schema):
-    id = fields.Int(required=False)
-    email = fields.Str(required=True)
-    password = fields.Str(required=True, load_only=True)
+class LoginResponse(BaseModel):
+    info:str
+    token:str

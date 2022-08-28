@@ -19,6 +19,17 @@ def dict_user_admin():
     }
 
 @pytest.fixture
+def dict_user_empty_pass():
+    return {
+        "login":"test login",
+        "password":"",
+        "is_activate": True,
+        "is_admin": False,
+        "key_activete":None,
+    }
+
+
+@pytest.fixture
 def dict_user_1_activate():
     return {
         "login": 'user 1',
@@ -38,6 +49,9 @@ def dict_user_2_non_activate():
         "key_activete":'448096f0-12b4-11e6-88f1-180373e5e84a',
     }
 
+def create_user_from_dict(test_app: "Sanic", dict_user_data:dict)->User:
+    return run_corootine_in_current_loop(test_app.config["STORE"].user_accessor.insert_or_find(User(**dict_user_data)))
+
 @pytest.fixture
 def db_user_admin(test_app: "Sanic", dict_user_admin:dict)->User:
     return run_corootine_in_current_loop(test_app.config["STORE"].user_accessor.insert_or_find(User(**dict_user_admin)))
@@ -49,3 +63,9 @@ def db_user_1_activate(test_app: "Sanic", dict_user_1_activate:dict)->User:
 @pytest.fixture
 def db_user_2_non_activate(test_app: "Sanic", dict_user_2_non_activate:dict)->User:
     return run_corootine_in_current_loop(test_app.config["STORE"].user_accessor.insert_or_find(User(**dict_user_2_non_activate)))
+
+@pytest.fixture
+def db_user_empty_pass(test_app: "Sanic", dict_user_empty_pass:dict)->User:
+    return run_corootine_in_current_loop(test_app.config["STORE"].user_accessor.insert_or_find(User(**dict_user_empty_pass)))
+
+    

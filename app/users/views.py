@@ -1,15 +1,27 @@
+from app.users.schemes import LoginInput, LoginResponse
 from app.server.server import sanic_app
 from app.users.auth import get_jwt_token
 from sanic.response import json, text
+from sanic_openapi import openapi
+from sanic_pydantic import webargs
+from sanic_openapi.openapi3.definitions import RequestBody, Response
 
-
-@sanic_app.get("/users.login/<login:str>/<password:str>", name='users.login')
-async def login_user(request, login:str, password:str)->json:
+@sanic_app.get("/users.login/", name='users.login')
+@openapi.description('Login to api and get token')
+@openapi.definition(
+    body=RequestBody(LoginInput, required=True),
+    summary="User profile update",
+    response=[Response(LoginResponse)],
+)
+@webargs(query=LoginInput)
+async def login_user(request, **kwargs)->json:
     status_ret = 200
     dict_result = {
         "info": "",
         "token": "",
     }
+    login = kwargs['query']['login']
+    password = kwargs['query']['password']
     user = await sanic_app.config["STORE"].user_accessor.get_by_login(login=login)
     if user is None or not user.is_password_valid(password):
         status_ret = 400
