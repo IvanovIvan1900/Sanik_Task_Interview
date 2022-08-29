@@ -1,7 +1,9 @@
 import typing
+import uuid
 from wsgiref import headers
 
 import pytest
+from tests.fixtures.general import run_corootine_in_current_loop
 from app.users.auth import get_jwt_token
 from app.users.models import User
 from sanic import Sanic, response
@@ -118,3 +120,55 @@ class TestUsersLogin:
                 info = info.replace("{user_login}", dict_user_data.get('login', None))
 
             assert info == response.json["info"]
+
+class TestUsersCreateAndActivate:
+
+    def test_create_user_and_activate(self, cli: "ReusableClient", test_app: "Sanic"):
+        param_url = {
+            "login":"test_login",
+            "password":"test_password"
+        }
+        url = test_app.url_for('users.register.new', **param_url)
+        _, response = cli.get(url)
+
+        assert 200 == response.status
+        user_id = int(response.json["user_id"])
+        user_db = run_corootine_in_current_loop(test_app.config["STORE"].user_accessor.get_by_id(user_id = user_id))
+
+        assert user_db
+        assert not user_db.is_activate
+
+        _, response = cli.get(response.json["link_to_activate"])
+
+        assert 200 == response.status
+
+        user_db = run_corootine_in_current_loop(test_app.config["STORE"].user_accessor.get_by_id(user_id = user_id))
+
+        assert user_db
+        assert user_db.is_activate
+
+    def test_create_user_already_exists(self, cli: "ReusableClient", test_app: "Sanic", db_user_1_activate:User):
+        param_url = {
+            "login":db_user_1_activate.login,
+            "password":db_user_1_activate.password
+        }
+        url = test_app.url_for('users.register.new', **param_url)
+        _, response = cli.get(url)
+
+        assert 400 == response.status
+        assert f'User wich login {db_user_1_activate.login} already exists' == response.json["info"]
+
+    def test_activate_wich_invalide_key(self, cli: "ReusableClient", test_app: "Sanic"):
+        key=str(uuid.uuid4())
+        url = test_app.url_for('users.activate', key=key)
+        _, response = cli.get(url)
+
+        assert 400 == response.status
+        assert f'Key "{key}" is not found' == response.json["info"]
+
+    def test_activate_already_active_user(self, cli: "ReusableClient", test_app: "Sanic", db_user_1_activate:User):
+        url = test_app.url_for('users.activate', key=db_user_1_activate.key_activete)
+        _, response = cli.get(url)
+
+        assert 400 == response.status
+        assert f'Users wich key "{db_user_1_activate.key_activete}" already is activate' == response.json["info"]

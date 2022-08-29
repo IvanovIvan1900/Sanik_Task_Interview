@@ -30,6 +30,15 @@ class UserAccessor(BaseAccessor):
         user = await query.gino.first()
         return User.from_db_model(user) if user is not None else None
 
+    async def activate_user_wich_key(self, key_activete: str, activate:bool) -> Optional[User]:
+        user_db = await UserModel.update.values(is_activate=activate).where(UserModel.key_activete == key_activete).returning(*UserModel.__table__.c).gino.first()
+        return User.from_db_model(user_db) if user_db is not None else None
+
+    async def get_by_key_activete(self, key_activete: str) -> Optional[User]:
+        query = UserModel.query.where(UserModel.key_activete == key_activete)
+        user = await query.gino.first()
+        return User.from_db_model(user) if user is not None else None
+
     async def create_user(self, user:User)->bool:
         user_db = await UserModel.create(login = user.login, password = User.get_chash_for_password(user.password), 
                 is_activate = user.is_activate, is_admin = user.is_admin, key_activete = user.key_activete )

@@ -1,11 +1,14 @@
-import hmac
-from typing import Optional
-from app.server.server import sanic_app
-import pickle
-from  hashlib import sha256
 import base64
+import hmac
+import pickle
 from functools import wraps
+from hashlib import sha256
+from typing import Optional
+
+from app.server.server import sanic_app
 from sanic.response import json
+
+from app.users.models import User
 
 def base64urlEncode_dict(input_data:dict)->str:
     return base64.b64encode(pickle.dumps(input_data))
@@ -102,3 +105,6 @@ def is_admin(wrapped):
             return response
         return decorated_function
     return actual_decorator(wrapped)
+
+def get_link_activate_user(user:User)->str:
+    return sanic_app.url_for('users.activate', key=user.key_activete)

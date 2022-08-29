@@ -15,7 +15,7 @@ def dict_user_admin():
         "password":sanic_app.config["ADMIN_PASSWORD"],
         "is_activate": True,
         "is_admin": True,
-        "key_activete":None,
+        "key_activete":"1a7e35ec-9906-47ef-b33f-3ff3de141cdc",
     }
 
 @pytest.fixture
@@ -25,7 +25,7 @@ def dict_user_empty_pass():
         "password":"",
         "is_activate": True,
         "is_admin": False,
-        "key_activete":None,
+        "key_activete":"59ccd952-824f-4146-a0e6-a939601ad674",
     }
 
 
@@ -36,7 +36,7 @@ def dict_user_1_activate():
         "password":"password_super",
         "is_activate": True,
         "is_admin": False,
-        "key_activete":None,
+        "key_activete":"3422b448-2460-4fd2-9183-8000de6f8343",
     }
 
 @pytest.fixture
@@ -72,4 +72,3 @@ def db_user_2_non_activate(test_app: "Sanic", dict_user_2_non_activate:dict)->Us
 def db_user_empty_pass(test_app: "Sanic", dict_user_empty_pass:dict)->User:
     return run_corootine_in_current_loop(test_app.config["STORE"].user_accessor.insert_or_find(User(**dict_user_empty_pass)))
 
-    
