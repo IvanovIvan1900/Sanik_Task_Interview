@@ -53,6 +53,8 @@ def create_user_from_dict(test_app: "Sanic", dict_user_data:dict)->User:
     return run_corootine_in_current_loop(test_app.config["STORE"].user_accessor.insert_or_find(User(**dict_user_data)))
 
 def get_header_auth_wich_user(user_id:int)->dict:
+    if not isinstance(user_id, int):
+        raise ValueError("User id must be int")
     token = get_jwt_token(user_id)
     return {'Authorization':f'Basic {token}'}
 

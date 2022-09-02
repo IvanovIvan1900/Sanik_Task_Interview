@@ -53,6 +53,6 @@ class Database():
     async def clear_db(self):
         db = self.db
         for table in db.sorted_tables:
-            await db.status(db.text(f"TRUNCATE {table.name} CASCADE"))
-            with contextlib.suppress(Exception):
-                row = await db.status(db.text(f"ALTER SEQUENCE {table.name}_id_seq RESTART WITH 1"))         
+            await db.status(db.text(f"TRUNCATE {table.name} RESTART IDENTITY CASCADE"))
+            # with contextlib.suppress(Exception):
+            #     row = await db.status(db.text(f"ALTER SEQUENCE {table.name}_id_seq RESTART WITH 1"))         

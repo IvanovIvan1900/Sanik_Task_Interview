@@ -12,7 +12,7 @@ from sanic_openapi import openapi
 from sanic_openapi.openapi3.definitions import RequestBody, Response
 from sanic_pydantic import webargs
 from sqlalchemy.exc import IntegrityError
-
+from sanic.request import Request
 
 @sanic_app.get("/users.login/", name='users.login')
 @openapi.description('Login to api and get token')
@@ -21,7 +21,7 @@ from sqlalchemy.exc import IntegrityError
     response=[Response(LoginResponse)],
 )
 @webargs(query=LoginInput)
-async def user_login(request, **kwargs)->json:
+async def user_login(request:Request, **kwargs)->json:
     status_ret = 200
     dict_result = {
         "info": "",
@@ -47,7 +47,7 @@ async def user_login(request, **kwargs)->json:
     response=[Response(RegisterNewUserResponse)],
 )
 @webargs(query=LoginInput)
-async def user_register(request, **kwargs)->json:
+async def user_register(request:Request, **kwargs)->json:
     status_ret = 200
     dict_result = {
         "info": "",
@@ -101,7 +101,7 @@ async def user_register(request, **kwargs)->json:
     response=[Response(UsersInfoResponse)],
 )
 @webargs(query=UsersActivateRequest)
-async def user_activate(request, **kwargs)->json:
+async def user_activate(request:Request, **kwargs)->json:
     status_ret = 200
     dict_result = {
         "info": "",
@@ -132,13 +132,13 @@ async def user_activate(request, **kwargs)->json:
 
 @sanic_app.get("/users.test.auth/", name='users.test.auth')
 @authorized
-async def test_auth(request, **kwargs)->json:
+async def test_auth(request:Request, **kwargs)->json:
     return json({'info':'user is auth'}, status=200)
 
 @sanic_app.get("/users.test.auth.admin/", name='users.test.auth.admin')
 @authorized
 @is_admin
-async def test_auth(request, **kwargs)->json:
+async def test_auth(request:Request, **kwargs)->json:
     return json({'info':'user is admin'}, status=200)
 
 

@@ -7,6 +7,7 @@ from app.store import setup_store
 from app.server.logging import setup_logging
 from sanic_openapi import openapi3_blueprint
 
+
 sanic_app = Sanic.get_app("Magazin_API", force_create=True)
 
 def setup_app(sanic_app:Sanic)->None:
