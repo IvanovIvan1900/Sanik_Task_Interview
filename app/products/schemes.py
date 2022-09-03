@@ -19,3 +19,6 @@ class ListProductOutput(BaseModel):
 
 class ListIdInput(BaseModel):
     list_id: List[str] = Field(None)
+
+class ListProductOutput_OnlyInfo(BaseModel):
+    info:str

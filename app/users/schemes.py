@@ -18,3 +18,8 @@ class UsersActivateRequest(BaseModel):
 
 class UsersInfoResponse(BaseModel):
     info:str
+
+class UsersId_AndActive(BaseModel):
+    user_id:int
+    is_active:bool
+

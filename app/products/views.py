@@ -6,7 +6,7 @@ from sanic.views import HTTPMethodView
 from sanic_openapi import openapi
 from sanic_openapi.openapi3.definitions import RequestBody, Response
 from sanic_pydantic import webargs
-from app.products.schemes import ListIdInput, ListProductInput, ListProductOutput
+from app.products.schemes import ListIdInput, ListProductInput, ListProductOutput, ListProductOutput_OnlyInfo
 from app.users.auth import (authorized,is_admin)
 from sanic import Blueprint
 
@@ -55,7 +55,7 @@ async def get(request:Request, **kwargs)->json:
 @openapi.description('Delete element. Get list id. If if is not exist not delete items')
 @openapi.definition(
     body=RequestBody(ListIdInput, required=True),
-    # response=[Response(ListProductOutput)],
+    response=[Response(ListProductOutput_OnlyInfo)],
 )
 @is_admin
 @authorized
@@ -63,7 +63,6 @@ async def get(request:Request, **kwargs)->json:
 async def delete(request:Request)->json:
     dic_result = {
         "info":"ok",
-        "list_items":[],
     }
     status_res = 200
     try:

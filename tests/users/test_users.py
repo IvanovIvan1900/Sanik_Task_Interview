@@ -172,3 +172,33 @@ class TestUsersCreateAndActivate:
 
         assert 400 == response.status
         assert f'Users wich key "{db_user_1_activate.key_activete}" already is activate' == response.json["info"]
+
+    def test_activate_user_by_id_not_exist(self, cli: "ReusableClient", test_app: "Sanic", db_user_1_activate:User, db_user_admin:User,):
+        headers = get_header_auth_wich_user(db_user_admin.user_id)
+        user_id = db_user_admin.user_id+1
+        url = test_app.url_for('users.set_is_active', user_id=user_id, is_active=True)
+        _, response = cli.get(url, headers = headers)
+
+        assert 400 == response.status
+        assert f'Error. User wich user_id {user_id} is not exists' == response.json["info"]
+
+    def test_activate_user_by_id(self, cli: "ReusableClient", test_app: "Sanic", db_user_1_activate:User,
+                 db_user_admin:User):
+        headers = get_header_auth_wich_user(db_user_admin.user_id)
+        user_id = db_user_1_activate.user_id
+        url = test_app.url_for('users.set_is_active', user_id=user_id, is_active=False)
+        _, response = cli.get(url, headers = headers)
+
+        assert 200 == response.status
+        user_db = run_corootine_in_current_loop(test_app.config["STORE"].user_accessor.get_by_id(user_id))
+        assert user_db is not None
+        assert not user_db.is_activate
+
+        url = test_app.url_for('users.set_is_active', user_id=user_id, is_active=True)
+        _, response = cli.get(url, headers = headers)
+
+        assert 200 == response.status
+        user_db = run_corootine_in_current_loop(test_app.config["STORE"].user_accessor.get_by_id(user_id))
+        assert user_db is not None
+        assert user_db.is_activate
+

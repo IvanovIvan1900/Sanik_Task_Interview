@@ -6,7 +6,7 @@ from app.users.auth import (authorized, get_jwt_token, get_link_activate_user,
                             is_admin)
 from app.users.schemes import (LoginInput, LoginResponse,
                                RegisterNewUserResponse,
-                               UsersActivateRequest, UsersInfoResponse)
+                               UsersActivateRequest, UsersId_AndActive, UsersInfoResponse)
 from sanic.response import json, text
 from sanic_openapi import openapi
 from sanic_openapi.openapi3.definitions import RequestBody, Response
@@ -126,9 +126,31 @@ async def user_activate(request:Request, **kwargs)->json:
         dict_result["info"] = f'Uncnown error. see logs'
         return json(dict_result, status=status_ret)
 
-
-
-
+@sanic_app.get("/users.set_is_active/", name='users.set_is_active')
+@openapi.description('Activete inactive user')
+@openapi.definition(
+    body=RequestBody(UsersId_AndActive, required=True),
+    response=[Response(UsersInfoResponse)],
+)
+@authorized
+@is_admin
+@webargs(query=UsersId_AndActive)
+async def user_activate(request:Request, **kwargs)->json:
+    status_ret = 200
+    dict_result = {
+        "info": "",
+    }
+    user_id = kwargs["query"]["user_id"]
+    is_active = kwargs["query"]["is_active"]
+    user = await sanic_app.config["STORE"].user_accessor.get_by_id(user_id)
+    if user is None:
+        dict_result["info"] = f'Error. User wich user_id {user_id} is not exists'
+        status_ret = 400
+    else:
+        if user.is_activate != is_active:
+            user = await sanic_app.config["STORE"].user_accessor.activate_user_id(user_id, is_active)
+            dict_result["info"] = "ok"
+    return json(dict_result, status=status_ret)
 
 @sanic_app.get("/users.test.auth/", name='users.test.auth')
 @authorized
