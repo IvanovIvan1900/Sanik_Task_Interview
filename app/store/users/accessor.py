@@ -1,11 +1,13 @@
+
+from decimal import Decimal
 import typing
 from hashlib import sha256
 from typing import Optional
 
 from app.store.database.base_accessor import BaseAccessor
-from app.users.models import User, UserModel
+from app.users.models import BillModel, User, UserModel, Bill
 from app.store.database.gino import db
-
+from sqlalchemy.dialects.postgresql import insert
 
 if typing.TYPE_CHECKING:
     from sanic import Sanic
@@ -55,6 +57,25 @@ class UserAccessor(BaseAccessor):
             user_db = User.from_db_model(user_db)
         return user_db
 
+    async def create_bill_if_not_exist(self, bill:Bill)->Bill:
+        if not bill.amount:
+            bill.amount = Decimal('0.0')
+
+        stmt = insert(BillModel).values(bill.__dict__)
+        stmt = stmt.on_conflict_do_nothing()
+        bill_bd = await stmt.returning(BillModel.__table__).gino.first()
+        if bill_bd is None:
+            bill_bd = await self.get_bill_by_id(bill_id=bill.bill_id)
+        return Bill.from_db_model(bill_bd) if bill_bd is not None else None
+
+    async def add_amount_to_bill(self, bill_id:int, amount:Decimal)->BillModel:
+        stmt = BillModel.update.values(amount=(BillModel.amount + amount))
+        stmt = stmt.where(BillModel.bill_id == bill_id).returning(BillModel.__table__).gino.first()
+        return await stmt
+
+    async def get_bill_by_id(self, bill_id:int)->Bill:
+        bill_bd = await BillModel.query.where(BillModel.bill_id == bill_id).gino.first()
+        return Bill.from_db_model(bill_bd) if bill_bd is not None else None
 
     async def create_admin(self, login: str, password: str) -> User:
         admin_in_base = await self.get_by_login(login=login, is_admin=True)

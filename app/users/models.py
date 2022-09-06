@@ -9,11 +9,15 @@ from app.store.database.gino import db
 @dataclass
 class Bill:
     bill_id:int = None
-    summ:Decimal = None
+    amount:Decimal = None
     user_id:int = None
 
     def __repr__(self) -> str:
-        return f'num:{self.bill_id}, summ:{self.summ}, user:{self.user_id}'
+        return f'num:{self.bill_id}, amount:{self.amount}, user:{self.user_id}'
+
+    @classmethod
+    def from_db_model(cls, model) -> Optional["Bill"]:
+        return cls(bill_id=model.bill_id, amount=model.amount, user_id=model.user_id)
 
 @dataclass
 class User:
@@ -53,7 +57,7 @@ class BillModel(db.Model):
     __tablename__ = "bills"
 
     bill_id = db.Column(db.Integer, nullable = False, primary_key=True)
-    summ = db.Column(db.Numeric(10,2), nullable = False)
+    amount = db.Column(db.Numeric(10,2), nullable = False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id', ondelete="CASCADE"))
 
-    _c = db.CheckConstraint('summ >= 0', name='summ_not_negative')
+    _c = db.CheckConstraint('amount >= 0', name='amount_not_negative')

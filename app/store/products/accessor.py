@@ -1,12 +1,10 @@
-from decimal import Decimal
 import typing
-from typing import Optional
-from app.products.models import ProductModel, Product
-from gino.loader import ModelLoader
+from decimal import Decimal
 
+
+from app.products.models import Product, ProductModel
 from app.store.database.base_accessor import BaseAccessor
 from app.store.database.gino import db
-from sqlalchemy import literal_column
 from sqlalchemy.dialects.postgresql import insert
 
 if typing.TYPE_CHECKING:
@@ -33,6 +31,9 @@ class ProdAccessor(BaseAccessor):
 
     async def del_list_of_id(self, list_of_id:list[int])->list[ProductModel]:
         return await ProductModel.delete.where(ProductModel.prod_id.in_(list_of_id)).gino.status()
+
+    async def get_list_of_prod_wich_id(self, list_id:list[int])->list[ProductModel]:
+        return await ProductModel.query.where(ProductModel.prod_id.in_(list_id)).gino.all()
 
     # async def get_by_login(self, login: str, is_admin = None) -> Optional[User]:
     #     query = UserModel.query.where(UserModel.login== login)

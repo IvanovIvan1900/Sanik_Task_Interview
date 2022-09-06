@@ -1,8 +1,8 @@
 """Transact, bill, Prod
 
-Revision ID: 92a52aaa056d
+Revision ID: 04242579ea30
 Revises: 9cd29a374633
-Create Date: 2022-08-30 19:18:10.222214
+Create Date: 2022-09-06 12:37:06.020808
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '92a52aaa056d'
+revision = '04242579ea30'
 down_revision = '9cd29a374633'
 branch_labels = None
 depends_on = None
@@ -28,18 +28,18 @@ def upgrade() -> None:
     op.create_index(op.f('ix_products_name'), 'products', ['name'], unique=True)
     op.create_table('bills',
     sa.Column('bill_id', sa.Integer(), nullable=False),
-    sa.Column('summ', sa.Numeric(precision=10, scale=2), nullable=False),
+    sa.Column('amount', sa.Numeric(precision=10, scale=2), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.CheckConstraint('summ >= 0', name='summ_not_negative'),
+    sa.CheckConstraint('amount >= 0', name='amount_not_negative'),
     sa.ForeignKeyConstraint(['user_id'], ['users.user_id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('bill_id')
     )
     op.create_table('transactions',
-    sa.Column('trans_id', sa.Integer(), nullable=False),
+    sa.Column('transaction_id', sa.Integer(), nullable=False),
     sa.Column('bill_id', sa.Integer(), nullable=False),
     sa.Column('amount', sa.Numeric(precision=10, scale=2), nullable=False),
     sa.ForeignKeyConstraint(['bill_id'], ['bills.bill_id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('trans_id')
+    sa.PrimaryKeyConstraint('transaction_id')
     )
     # ### end Alembic commands ###
 

@@ -1,6 +1,6 @@
 import typing
 import pytest
-from app.users.models import User
+from app.users.models import Bill, User
 from app.server.server import sanic_app
 from .general import run_corootine_in_current_loop
 from app.users.auth import get_jwt_token
@@ -48,6 +48,31 @@ def dict_user_2_non_activate():
         "is_admin": False,
         "key_activete":'448096f0-12b4-11e6-88f1-180373e5e84a',
     }
+
+@pytest.fixture
+def dict_bill_one()->dict:
+    return {
+        "bill_id":1125,
+        "amount": 0,
+        "user_id":0
+    }
+
+@pytest.fixture
+def dict_bill_two()->dict:
+    return {
+        "bill_id":2225,
+        "amount": 0,
+        "user_id":0
+    }
+
+
+def get_db_bill_one_for_user(test_app: "Sanic",user:User, dict_bill:dict, amount:int = 0)->Bill:
+    dict_data = dict_bill.copy()
+    dict_data["user_id"] = user.user_id
+    if amount != 0:
+        dict_data["amount"] = amount
+
+    return run_corootine_in_current_loop(test_app.config["STORE"].user_accessor.create_bill_if_not_exist(Bill(**dict_data)))
 
 def create_user_from_dict(test_app: "Sanic", dict_user_data:dict)->User:
     return run_corootine_in_current_loop(test_app.config["STORE"].user_accessor.insert_or_find(User(**dict_user_data)))

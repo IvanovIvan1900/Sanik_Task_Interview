@@ -6,12 +6,13 @@ import typing
 import pytest
 from app.products.models import ProductModel
 from app.users.models import User
-from sanic import Sanic
+
 from tests.fixtures.users import get_header_auth_wich_user
 from tests.fixtures.general import run_corootine_in_current_loop
 
 if typing.TYPE_CHECKING:
     from sanic_testing.reusable import ReusableClient
+    from sanic import Sanic
 
 class TestProducts:
 
