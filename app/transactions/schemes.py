@@ -1,4 +1,6 @@
 from ast import List
+from datetime import date
+from typing import Optional
 from pydantic import BaseModel, Field
 
 class PaymentInputs(BaseModel):
@@ -18,3 +20,9 @@ class BayProd(BaseModel):
 class BuyProductsInput(BaseModel):
     bill_id:int
     items_id:list[BayProd]
+
+class TransactionListInput(BaseModel):
+    bill_id:Optional[int]
+    user_id:Optional[int]
+    date_from:Optional[date]
+    date_to:Optional[date]

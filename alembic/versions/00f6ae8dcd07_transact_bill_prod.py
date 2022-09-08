@@ -1,8 +1,8 @@
 """Transact, bill, Prod
 
-Revision ID: 04242579ea30
+Revision ID: 00f6ae8dcd07
 Revises: 9cd29a374633
-Create Date: 2022-09-06 12:37:06.020808
+Create Date: 2022-09-06 12:51:57.613913
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '04242579ea30'
+revision = '00f6ae8dcd07'
 down_revision = '9cd29a374633'
 branch_labels = None
 depends_on = None
@@ -38,6 +38,7 @@ def upgrade() -> None:
     sa.Column('transaction_id', sa.Integer(), nullable=False),
     sa.Column('bill_id', sa.Integer(), nullable=False),
     sa.Column('amount', sa.Numeric(precision=10, scale=2), nullable=False),
+    sa.Column('transaction_date', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['bill_id'], ['bills.bill_id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('transaction_id')
     )

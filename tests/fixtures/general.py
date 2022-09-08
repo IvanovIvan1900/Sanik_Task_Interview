@@ -1,3 +1,4 @@
+from datetime import date, timedelta
 import pytest
 from app.server.server import sanic_app
 from app.server.server import setup_app
@@ -27,5 +28,11 @@ def run_corootine_in_current_loop(corootin):
     curr_loop = asyncio.get_event_loop()
     return curr_loop.run_until_complete(corootin)
 
+@pytest.fixture
+def date_today():
+    return date.today()
 
+@pytest.fixture
+def date_yesterday():
+    return date.today()-timedelta(days=1)
 

@@ -57,10 +57,19 @@ def dict_bill_one()->dict:
         "user_id":0
     }
 
+
 @pytest.fixture
 def dict_bill_two()->dict:
     return {
         "bill_id":2225,
+        "amount": 0,
+        "user_id":0
+    }
+
+@pytest.fixture
+def dict_bill_three()->dict:
+    return {
+        "bill_id":3325,
         "amount": 0,
         "user_id":0
     }

@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 import typing
 from app.transactions.models import TransactionModel
@@ -5,6 +6,7 @@ from app.transactions.models import TransactionModel
 from app.store.database.base_accessor import BaseAccessor
 from app.store.database.gino import db
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy import select
 
 if typing.TYPE_CHECKING:
     from sanic import Sanic
@@ -14,6 +16,8 @@ class TransAccessor(BaseAccessor):
     
 
     async def add_transaction(self, dict_dat:dict)->TransactionModel:
+        if dict_dat.get("transaction_id", None) is None and "transaction_id" in dict_dat:
+            del dict_dat["transaction_id"]
         result = await insert(TransactionModel).values(**dict_dat).on_conflict_do_nothing().returning(TransactionModel.__table__).gino.first()
         return result
 
@@ -64,4 +68,23 @@ class TransAccessor(BaseAccessor):
             error_description = f'Bill wich bill_id {bill_id} is not exist'
 
         return error_description
-    
+
+    async def get_list_transaction(self, date_from:datetime = None, date_to:datetime = None, user_id:int = None, bill_id:int = None)->list[TransactionModel]:
+        from app.users.models import BillModel, UserModel
+
+        column = [BillModel.user_id, BillModel.bill_id, UserModel.login, TransactionModel.transaction_id,
+                TransactionModel.transaction_date, TransactionModel.amount]
+        stmt = select(column)
+        stmt = stmt.select_from(TransactionModel.join(BillModel).join(UserModel))
+        if date_from is not None:
+            stmt = stmt.where(TransactionModel.transaction_date >= date_from)
+        if date_to is not None:
+            stmt = stmt.where(TransactionModel.transaction_date <= date_to)
+        if user_id is not None:
+            stmt = stmt.where(BillModel.user_id == user_id)
+        if bill_id is not None:
+            stmt = stmt.where(BillModel.bill_id == bill_id)
+
+        result = await stmt.gino.all()
+
+        return result
