@@ -2,12 +2,14 @@ import json
 import typing
 from datetime import date, datetime, time, timedelta
 from decimal import Decimal
+from typing import Optional
 from unittest.mock import ANY
 
 import pytest
 from app.transactions.utils import get_signature
-from app.users.models import User, Bill
-from tests.fixtures.general import run_corootine_in_current_loop
+from app.users.models import Bill, User
+from pytest_dictsdiff import check_objects
+from tests.fixtures.general import run_corootine_in_current_loop, test_app
 from tests.fixtures.transactions import create_transaction_from_list
 from tests.fixtures.users import (get_db_bill_one_for_user,
                                   get_header_auth_wich_user)
@@ -86,6 +88,11 @@ class TestTransactions():
             list_of_transactions[i]["bill_id"] = bill_id
             list_of_transactions[i]["transaction_date"] = transaction_date
 
+    def service_calculate_amount_in_bills(self, list_of_transaction:list[dict], list_of_bills:list[dict])->None:
+        dict_bills_id_elem = {elem["bill_id"]:elem for elem in list_of_bills}
+        for elem in list_of_transaction:
+            dict_bills_id_elem[elem["bill_id"]]["amount"] = dict_bills_id_elem[elem["bill_id"]]["amount"] +elem["amount"]
+
     def service_list_transaction_create_data(self, cli: "ReusableClient", test_app: "Sanic", db_user_admin:User, db_user_1_activate:User, dict_bill_one:dict,
             dict_bill_two:dict, dict_bill_three:dict, list_dict_transactions_10:list[dict]):
 
@@ -110,6 +117,7 @@ class TestTransactions():
         index_to = 10
         self.service_fill_param_in_list(list_dict_transactions_10, index_from=index_from, index_to=index_to, bill_id=dict_bill_three["bill_id"], transaction_date=date_yesterday)
 
+        self.service_calculate_amount_in_bills(list_of_transaction=list_dict_transactions_10, list_of_bills=[dict_bill_one, dict_bill_two, dict_bill_three])
         create_transaction_from_list(test_app=test_app, list_trans_input=list_dict_transactions_10, list_of_bill=[dict_bill_one, dict_bill_two, dict_bill_three])
 
     def service_list_transaction_get_filtered_list(self, list_transaction:list[dict], list_bill:list[dict], filters:dict
@@ -191,3 +199,5 @@ class TestTransactions():
         key_func = lambda x: (x["user_id"], x["bill_id"],x["transaction_date"])
         for elem_etalon, elem_db in zip(sorted(etalon_date, key=key_func), sorted(json_data["items"], key=key_func)):
             assert elem_etalon == elem_db
+
+

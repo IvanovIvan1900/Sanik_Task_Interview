@@ -52,6 +52,20 @@ class UserModel(db.Model):
     is_admin = db.Column(db.Boolean(), nullable = False, default = False)
     key_activete = db.Column(db.String(36),index=True, unique=True, default=uuid.uuid4)
 
+    def __repr__(self) -> str:
+        return f'login: {self.login}, user_id: {self.user_id}'
+
+    def __init__(self, **kw):
+            super().__init__(**kw)
+            self._bills = set()
+    @property
+    def bills(self):
+        return self._bills
+
+    @bills.setter
+    def add_bill(self, bill):
+        self._bills.add(bill)
+
 
 class BillModel(db.Model):
     __tablename__ = "bills"
@@ -61,3 +75,6 @@ class BillModel(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id', ondelete="CASCADE"))
 
     _c = db.CheckConstraint('amount >= 0', name='amount_not_negative')
+
+    def __repr__(self) -> str:
+        return f'user_id:{self.user_id}, bill_id:{self.bill_id}, amount:{self.amount}'

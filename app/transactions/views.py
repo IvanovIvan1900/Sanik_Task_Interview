@@ -1,16 +1,21 @@
-from datetime import date, time, datetime
+import json
+from datetime import date, datetime, time
+
 from app.server.server import sanic_app
 from app.transactions.models import TransactionModel
-from app.transactions.schemes import BuyProductsInput, PaymentInputs, PaymentOuput, TransactionListInput
-from app.transactions.utils import DecimalEncoder, MultipleJsonEncoders, get_signature
+from app.transactions.schemes import (BuyProductsInput, ListBillsInput,
+                                      ListBillsOutput, PaymentInputs,
+                                      PaymentOuput, TransactionListInput,
+                                      TransactionListOutput)
+from app.transactions.utils import (DateTimeEncoder, DecimalEncoder,
+                                    MultipleJsonEncoders, get_signature)
 from app.users.auth import authorized, is_admin
 from sanic.request import Request
-from sanic.response import json as json_resp, text
-import json
+from sanic.response import json as json_resp
+from sanic.response import text
 from sanic_openapi import openapi
 from sanic_openapi.openapi3.definitions import RequestBody, Response
 from sanic_pydantic import webargs
-from app.transactions.utils import DateTimeEncoder
 
 
 @sanic_app.post("/payment/webhook", name='payment.webhook')
@@ -79,7 +84,7 @@ async def transaction_buy(request:Request, **kwargs)->json:
 @openapi.description('Get list transaction')
 @openapi.definition(
     body=RequestBody(TransactionListInput, required=False),
-    # response=[Response(PaymentOuput)],
+    response=[Response(TransactionListOutput)],
 )
 @authorized
 @webargs(query=TransactionListInput)

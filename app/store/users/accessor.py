@@ -83,3 +83,12 @@ class UserAccessor(BaseAccessor):
             admin_in_base = await UserModel.create(login = login, password = User.get_chash_for_password(password), 
                 is_activate = True, is_admin = True, key_activete = '--------------')
         return User.from_db_model(admin_in_base)
+
+    async def get_user_wich_bills(self, user_id:Optional[int] = None, bill_id:Optional[int] = None)->list[UserModel]:
+        query = BillModel.outerjoin(UserModel).select()
+        if user_id is not None:
+            query = query.where(BillModel.user_id == user_id)
+        if bill_id is not None:
+            query = query.where(BillModel.bill_id == bill_id)
+        users = await query.gino.load(UserModel.distinct(UserModel.user_id).load(add_bill=BillModel)).all()
+        return users
