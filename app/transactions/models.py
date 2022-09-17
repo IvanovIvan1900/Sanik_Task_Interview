@@ -1,9 +1,9 @@
 import datetime
-from decimal import Decimal
-from operator import index
-from typing import Optional
-from app.store.database.gino import db
 from dataclasses import dataclass
+from decimal import Decimal
+
+from app.store.database.gino import db
+
 
 @dataclass
 class Transaction:

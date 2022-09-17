@@ -1,12 +1,13 @@
-import contextlib
 from typing import Optional
+
+from app.store.database.gino import db
+from app.users.models import *
+from sanic import Sanic
+from sqlalchemy.engine.url import URL
+
 import gino
 from gino.api import Gino
-from sanic import Sanic
-from app.store.database.gino import db
-from sqlalchemy.engine.url import URL
-from app.users.models import *
-from gino.engine import GinoConnection
+
 
 class Database():
     db: Gino
@@ -54,5 +55,3 @@ class Database():
         db = self.db
         for table in db.sorted_tables:
             await db.status(db.text(f"TRUNCATE {table.name} RESTART IDENTITY CASCADE"))
-            # with contextlib.suppress(Exception):
-            #     row = await db.status(db.text(f"ALTER SEQUENCE {table.name}_id_seq RESTART WITH 1"))         

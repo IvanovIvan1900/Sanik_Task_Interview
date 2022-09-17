@@ -1,21 +1,21 @@
 import json
 import uuid
-from app.transactions.schemes import ListBillsInput, ListBillsOutput
-from app.users.models import User
-from sanic.response import json as json_resp
 
 from app.server.server import sanic_app
+from app.transactions.schemes import ListBillsInput, ListBillsOutput
+from app.transactions.utils import DecimalEncoder
 from app.users.auth import (authorized, get_jwt_token, get_link_activate_user,
                             is_admin)
+from app.users.models import User
 from app.users.schemes import (LoginInput, LoginResponse,
-                               RegisterNewUserResponse,
-                               UsersActivateRequest, UsersId_AndActive, UsersInfoResponse)
+                               RegisterNewUserResponse, UsersActivateRequest,
+                               UsersId_AndActive, UsersInfoResponse)
+from sanic.request import Request
+from sanic.response import json as json_resp
 from sanic_openapi import openapi
 from sanic_openapi.openapi3.definitions import RequestBody, Response
 from sanic_pydantic import webargs
 from sqlalchemy.exc import IntegrityError
-from sanic.request import Request
-from app.transactions.utils import DecimalEncoder
 
 
 @sanic_app.get("/users.login/", name='users.login')
@@ -105,7 +105,7 @@ async def user_register(request:Request, **kwargs)->json_resp:
     response=[Response(UsersInfoResponse)],
 )
 @webargs(query=UsersActivateRequest)
-async def user_activate(request:Request, **kwargs)->json_resp:
+async def user_activate(request:Request, **kwargs) -> json_resp:
     status_ret = 200
     dict_result = {
         "info": "",
@@ -123,12 +123,12 @@ async def user_activate(request:Request, **kwargs)->json_resp:
 
     user = await sanic_app.config["STORE"].user_accessor.activate_user_wich_key(key_activete=key, activate = True)
     if user:
-        dict_result["info"] = f'Users activte'
-        return json_resp(dict_result, status=status_ret)
+        dict_result["info"] = 'Users activte'
     else:
         status_ret = 400
-        dict_result["info"] = f'Uncnown error. see logs'
-        return json_resp(dict_result, status=status_ret)
+        dict_result["info"] = 'Uncnown error. see logs'
+
+    return json_resp(dict_result, status=status_ret)
 
 @sanic_app.get("/users.set_is_active/", name='users.set_is_active')
 @openapi.description('Activete inactive user')
@@ -139,7 +139,7 @@ async def user_activate(request:Request, **kwargs)->json_resp:
 @authorized
 @is_admin
 @webargs(query=UsersId_AndActive)
-async def user_activate(request:Request, **kwargs)->json_resp:
+async def user_activate(request:Request, **kwargs) -> json_resp:
     status_ret = 200
     dict_result = {
         "info": "",
@@ -150,10 +150,9 @@ async def user_activate(request:Request, **kwargs)->json_resp:
     if user is None:
         dict_result["info"] = f'Error. User wich user_id {user_id} is not exists'
         status_ret = 400
-    else:
-        if user.is_activate != is_active:
-            user = await sanic_app.config["STORE"].user_accessor.activate_user_id(user_id, is_active)
-            dict_result["info"] = "ok"
+    elif user.is_activate != is_active:
+        user = await sanic_app.config["STORE"].user_accessor.activate_user_id(user_id, is_active)
+        dict_result["info"] = "ok"
     return json_resp(dict_result, status=status_ret)
 
 @sanic_app.get("/users.test.auth/", name='users.test.auth')

@@ -6,9 +6,9 @@ from hashlib import sha256
 from typing import Optional
 
 from app.server.server import sanic_app
+from app.users.models import User
 from sanic.response import json
 
-from app.users.models import User
 
 def base64urlEncode_dict(input_data:dict)->str:
     return base64.b64encode(pickle.dumps(input_data))

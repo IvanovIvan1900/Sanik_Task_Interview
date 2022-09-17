@@ -1,12 +1,9 @@
-from typing import Optional
-
+from app.server.config import setup_config
+from app.server.logging import setup_logging
+from app.store import setup_store
 from sanic import Sanic
 from sanic.response import text
-from app.server.config import setup_config
-from app.store import setup_store
-from app.server.logging import setup_logging
 from sanic_openapi import openapi3_blueprint
-
 
 sanic_app = Sanic.get_app("Magazin_API", force_create=True)
 

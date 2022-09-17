@@ -1,10 +1,11 @@
-from decimal import Decimal
 import uuid
 from dataclasses import dataclass
+from decimal import Decimal
 from hashlib import sha256
 from typing import Optional
 
 from app.store.database.gino import db
+
 
 @dataclass
 class Bill:

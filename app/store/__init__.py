@@ -3,7 +3,9 @@ import typing
 from app.store.database.database import Database
 from app.store.products.accessor import ProdAccessor
 from app.store.transactions.accessor import TransAccessor
-from sanic import Sanic
+
+if typing.TYPE_CHECKING:
+    from sanic import Sanic
 
 
 class Store:

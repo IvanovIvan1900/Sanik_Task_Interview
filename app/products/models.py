@@ -1,16 +1,18 @@
+from dataclasses import dataclass
 from decimal import Decimal
 from enum import unique
 from operator import index
 from typing import Optional
+
 from app.store.database.gino import db
-from dataclasses import dataclass
+
 
 @dataclass
 class Product:
     prod_id: Optional[int] = None
-    name: str = None
+    name: Optional[str] = None
     description: Optional[str] = None
-    price: Decimal = None
+    price: Optional[Decimal] = None
 
     def __repr__(self):
         return f'{self.name}, pr={self.price}'

@@ -239,14 +239,6 @@ class TestListBill():
             if bills.get(elem["bill_id"]) is None:
                 bills[elem["bill_id"]] = {"amount": 0}
             bills[elem["bill_id"]]["amount"] = bills[elem["bill_id"]]["amount"] + elem["amount"]
-
-            # elem_add = elem.copy()
-            # elem_add["user_id"] =
-            # elem_add["login"] = dict_user_id_to_login.get(elem_add["user_id"], None)
-            # elem_add["transaction_date"] = elem_add["transaction_date"].isoformat()
-            # elem_add["transaction_id"] = ANY
-            # elem_add["amount"] = str(elem_add["amount"])
-            # list_of_result.append(elem_add)
         result_list = []
         for key, value in dict_result.items():
             dict_data = {"user_id":key, "login":value["login"], "bills":[]}

@@ -106,12 +106,11 @@ def list_dict_transactions_10()->list[dict]:
         },
     ]
 
-def create_transaction_from_list(test_app: "Sanic", list_trans_input:list[dict], list_of_bill:list[dict])->list[TransactionModel]:
+def create_transaction_from_list(test_app: "Sanic", list_trans_input:list[dict], list_of_bill:list[dict]) -> list[TransactionModel]:
     list_output:list[TransactionModel] = []
     for elem in list_of_bill:
         run_corootine_in_current_loop(test_app.config["STORE"].user_accessor.create_bill_if_not_exist(Bill(**elem)))
 
-    for elem in list_trans_input:
-        list_output.append(run_corootine_in_current_loop(test_app.config["STORE"].trans_accessor.add_transaction(elem)))
+    list_output.extend(run_corootine_in_current_loop(test_app.config["STORE"].trans_accessor.add_transaction(elem)) for elem in list_trans_input)
 
     return list_output

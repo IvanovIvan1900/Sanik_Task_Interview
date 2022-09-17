@@ -1,6 +1,7 @@
-from decimal import Decimal
 from typing import List
+
 from pydantic import BaseModel, Field
+
 
 class ProductInput(BaseModel):
     name:str

@@ -1,9 +1,10 @@
 import datetime
-import decimal
-from Crypto.Hash import SHA1
-from app.server.server import sanic_app
-from json import JSONEncoder
 from decimal import Decimal
+from json import JSONEncoder
+
+from app.server.server import sanic_app
+from Crypto.Hash import SHA1
+
 
 async def get_signature(transaction_id:int, user_id:int, bill_id:int, amount:int):
     private_key = sanic_app.config["PRIVATE_KEY"]
@@ -38,7 +39,6 @@ class MultipleJsonEncoders():
         return enc
 
 class DateTimeEncoder(JSONEncoder):
-        #Override the default method
         def default(self, obj):
             if isinstance(obj, (datetime.date, datetime.datetime)):
                 return obj.isoformat()

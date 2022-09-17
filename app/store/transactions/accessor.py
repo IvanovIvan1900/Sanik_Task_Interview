@@ -1,19 +1,16 @@
+import typing
 from datetime import datetime
 from decimal import Decimal
-import typing
-from app.transactions.models import TransactionModel
 
 from app.store.database.base_accessor import BaseAccessor
 from app.store.database.gino import db
-from sqlalchemy.dialects.postgresql import insert
+from app.transactions.models import TransactionModel
 from sqlalchemy import select
-
-if typing.TYPE_CHECKING:
-    from sanic import Sanic
+from sqlalchemy.dialects.postgresql import insert
 
 
 class TransAccessor(BaseAccessor):
-    
+
 
     async def add_transaction(self, dict_dat:dict)->TransactionModel:
         if dict_dat.get("transaction_id", None) is None and "transaction_id" in dict_dat:
@@ -22,8 +19,8 @@ class TransAccessor(BaseAccessor):
         return result
 
     async def accept_payment(self, transaction_id:int, user_id:int, bill_id:int, amount:int)->str:
-        from app.users.models import Bill
         from app.server.server import sanic_app
+        from app.users.models import Bill
 
         error_description = ""
         summ = Decimal(amount)
@@ -45,8 +42,8 @@ class TransAccessor(BaseAccessor):
         return error_description
 
     async def buy_transaction(self, bill_id:int, amount:int)->str:
-        from app.users.models import Bill
         from app.server.server import sanic_app
+        from app.users.models import Bill
         error_description = ""
         bill_bd = await sanic_app.config["STORE"].user_accessor.get_bill_by_id(bill_id=bill_id)
         if bill_bd:

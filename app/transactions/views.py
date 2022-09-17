@@ -1,10 +1,8 @@
 import json
-from datetime import date, datetime, time
+from datetime import datetime, time
 
 from app.server.server import sanic_app
-from app.transactions.models import TransactionModel
-from app.transactions.schemes import (BuyProductsInput, ListBillsInput,
-                                      ListBillsOutput, PaymentInputs,
+from app.transactions.schemes import (BuyProductsInput, PaymentInputs,
                                       PaymentOuput, TransactionListInput,
                                       TransactionListOutput)
 from app.transactions.utils import (DateTimeEncoder, DecimalEncoder,
@@ -12,7 +10,6 @@ from app.transactions.utils import (DateTimeEncoder, DecimalEncoder,
 from app.users.auth import authorized, is_admin
 from sanic.request import Request
 from sanic.response import json as json_resp
-from sanic.response import text
 from sanic_openapi import openapi
 from sanic_openapi.openapi3.definitions import RequestBody, Response
 from sanic_pydantic import webargs
@@ -27,7 +24,7 @@ from sanic_pydantic import webargs
 @authorized
 @is_admin
 @webargs(body=PaymentInputs)
-async def payment(request:Request, **kwargs)->json:
+async def payment(request:Request, **kwargs)->json_resp:
     status_ret = 200
     dict_result = {
         "info": "",
@@ -59,7 +56,7 @@ async def payment(request:Request, **kwargs)->json:
 )
 @authorized
 @webargs(body=BuyProductsInput)
-async def transaction_buy(request:Request, **kwargs)->json:
+async def transaction_buy(request:Request, **kwargs) -> json_resp:
     status_ret = 200
     dict_result = {
         "info": "",
@@ -69,7 +66,7 @@ async def transaction_buy(request:Request, **kwargs)->json:
     list_id = [elem["prod_id"] for elem in items]
     amount = 0
     list_prod_bd = await sanic_app.config["STORE"].prod_accessor.get_list_of_prod_wich_id(list_id=list_id)
-    dict_of_price = dict((elem.prod_id, elem.price) for elem in list_prod_bd)
+    dict_of_price = {elem.prod_id: elem.price for elem in list_prod_bd}
     for elem in items:
         price = dict_of_price.get(elem["prod_id"], 0)
         amount += price*elem["count"]
@@ -88,11 +85,8 @@ async def transaction_buy(request:Request, **kwargs)->json:
 )
 @authorized
 @webargs(query=TransactionListInput)
-async def transaction_buy(request:Request, **kwargs)->json:
+async def transaction_buy(request:Request, **kwargs) -> json_resp:
     status_ret = 200
-    dict_result = {
-        "info": "",
-    }
     dic_queyr_filter = {key:kwargs["query"].get(key) for key in ["user_id", "bill_id"] if kwargs["query"].get(key, None) is not None}
     if kwargs["query"].get("date_from", None) is not None:
         dic_queyr_filter["date_from"] = datetime.combine(kwargs["query"].get("date_from", None), time.min)
@@ -100,7 +94,7 @@ async def transaction_buy(request:Request, **kwargs)->json:
         dic_queyr_filter["date_to"] = datetime.combine(kwargs["query"].get("date_to", None), time.max)
 
     result = await sanic_app.config["STORE"].trans_accessor.get_list_transaction(**dic_queyr_filter)
-    dict_result["items"] = [dict(elem.items()) for elem in result]
+    dict_result = {"info": "", "items": [dict(elem.items()) for elem in result]}
     my_encoder = MultipleJsonEncoders(DateTimeEncoder, DecimalEncoder)
     json_str = json.dumps(dict_result, cls=my_encoder)
     return json_resp(json_str, status= status_ret)

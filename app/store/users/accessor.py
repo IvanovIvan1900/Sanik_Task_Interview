@@ -1,12 +1,11 @@
-
-from decimal import Decimal
 import typing
+from decimal import Decimal
 from hashlib import sha256
 from typing import Optional
 
 from app.store.database.base_accessor import BaseAccessor
-from app.users.models import BillModel, User, UserModel, Bill
 from app.store.database.gino import db
+from app.users.models import Bill, BillModel, User, UserModel
 from sqlalchemy.dialects.postgresql import insert
 
 if typing.TYPE_CHECKING:
